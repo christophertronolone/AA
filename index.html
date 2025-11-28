@@ -1,648 +1,416 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AA Companion: Literature Search & Guidance</title>
+    <title>AA Companion - Literature & Guidance</title>
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Custom font and base styling */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap');
-        
+        /* Custom styles for the mobile screen container */
         body {
-            font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        .font-serif {
-            font-family: 'Merriweather', serif;
-        }
-        /* Ensure the main container scrolls nicely */
+
+        /* The main "phone" container */
         #app-container {
+            width: 100%;
+            max-width: 400px; /* Standard phone width */
+            height: 100vh; /* Full height on mobile */
+            max-height: 800px; /* Max height for desktop preview */
+            background-color: white;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 2rem;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Custom color palette - AA colors (Indigo theme) */
+        .color-primary-dark {
+            background-color: #4338CA; /* Indigo 700 */
+        }
+        .text-primary-dark {
+            color: #4338CA;
+        }
+        
+        /* Styling for the new Top Navigation Tabs */
+        #top-nav .nav-button {
+             padding-bottom: 8px; /* Space for the underline */
+             transition: color 0.2s, border-color 0.2s;
+             flex-grow: 1; /* Distribute space evenly */
+        }
+        #top-nav .nav-button.active {
+            color: white; 
+            border-bottom: 2px solid white; /* Highlight line */
+        }
+        #top-nav .nav-button:not(.active) {
+            color: #a5b4fc; /* Indigo 300 for contrast */
+        }
+
+
+        /* Custom scrollbar for content area */
+        .scrollable-content {
+            /* No bottom padding needed anymore */
+            padding-bottom: 1.5rem; 
+        }
+        .scrollable-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        .scrollable-content::-webkit-scrollbar-thumb {
+            background: #818cf8; /* Indigo 300 for scrollbar */
+            border-radius: 2px;
         }
     </style>
 </head>
 <body>
 
-    <div id="app-container" class="justify-center p-0 sm:p-4">
-        <div id="app" class="w-full max-w-xl bg-white shadow-2xl rounded-none sm:rounded-3xl overflow-hidden flex flex-col mx-auto">
+<div id="app-container">
+    <!-- Header/Navigation Bar - All navigation elements are now consolidated here -->
+    <div class="color-primary-dark text-white p-6 pb-0 rounded-b-3xl relative">
+        <!-- 1. Top Title Bar (Title + Settings) -->
+        <header class="flex justify-between items-center mb-4">
+            <div>
+                <h1 class="text-2xl font-bold">AA Companion</h1>
+                <p class="text-sm opacity-75">Daily Guidance</p>
             </div>
+            <!-- Settings Icon (Placeholder) -->
+            <button class="p-2 rounded-full hover:bg-white/10 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44C9.76 2 8.78 3.09 8.81 4.54L9 6h6l.19-1.46C15.22 3.09 14.24 2 12.22 2z"/><path d="M12 21a2 2 0 0 1-2-2h4a2 2 0 0 1-2 2z"/><path d="M12 6v14"/></svg>
+            </button>
+        </header>
+
+        <!-- 2. Search AA Literature Input -->
+        <div class="bg-white p-3 rounded-xl shadow-lg flex items-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="searchInput" placeholder="Search AA Literature..." class="w-full text-gray-800 focus:outline-none placeholder-gray-400">
+        </div>
+
+        <!-- 3. Top Tabs (Navigation Buttons) -->
+        <div id="top-nav" class="flex justify-around items-end pt-2">
+            <button class="flex flex-col items-center justify-center p-2 nav-button active" data-view="homeView">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span class="text-xs mt-1">Home</span>
+            </button>
+            <button class="flex flex-col items-center justify-center p-2 nav-button" data-view="stepsView">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H7"/><path d="M19 19H5"/><path d="M14 12H10"/></svg>
+                <span class="text-xs mt-1">Steps</span>
+            </button>
+            <button class="flex flex-col items-center justify-center p-2 nav-button" data-view="traditionsView">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span class="text-xs mt-1">Traditions</span>
+            </button>
+            <button class="flex flex-col items-center justify-center p-2 nav-button" data-view="searchResultsView">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <span class="text-xs mt-1">Search</span>
+            </button>
+        </div>
     </div>
 
-    <script>
-        // --- Core AA Guidance Content (Expanded for Search) ---
+    <!-- Main Content Area -->
+    <div id="content" class="flex-grow p-6 scrollable-content overflow-y-auto">
+        <!-- Home View (Default) -->
+        <div id="homeView" class="view">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Daily Reading</h2>
 
-        const SERENITY_PRAYER = "God, grant me the serenity to accept the things I cannot change, the courage to change the things I can, and the wisdom to know the difference.";
-
-        const TWELVE_STEPS = [
-            "We admitted we were powerless over alcohol—that our lives had become unmanageable.",
-            "Came to believe that a Power greater than ourselves could restore us to sanity.",
-            "Made a decision to turn our will and our lives over to the care of God as we understood Him.",
-            "Made a searching and fearless moral inventory of ourselves.",
-            "Admitted to God, to ourselves, and to another human being the exact nature of our wrongs.",
-            "Were entirely ready to have God remove all these defects of character.",
-            "Humbly asked Him to remove our shortcomings.",
-            "Made a list of all persons we had harmed, and became willing to make amends to them all.",
-            "Made direct amends to such people wherever possible, except when to do so would injure them or others.",
-            "Continued to take personal inventory and when we were wrong promptly admitted it.",
-            "Sought through prayer and meditation to improve our conscious contact with God as we understood Him, praying only for knowledge of His will for us and the power to carry that out.",
-            "Having had a spiritual awakening as the result of these Steps, we tried to carry this message to alcoholics, and to practice these principles in all our affairs."
-        ];
-
-        const TWELVE_TRADITIONS = [
-            "Our common welfare should come first; personal recovery depends upon AA unity.",
-            "For our group purpose there is but one ultimate authority—a loving God as He may express Himself in our group conscience. Our leaders are but trusted servants; they do not govern.",
-            "The only requirement for AA membership is a desire to stop drinking.",
-            "Each group should be autonomous except in matters affecting other groups or AA as a whole.",
-            "Each group has but one primary purpose—to carry its message to the alcoholic who still suffers.",
-            "An AA group ought never endorse, finance, or lend the AA name to any outside enterprise, lest problems of money, property, and prestige divert us from our primary purpose.",
-            "Every AA group ought to be fully self-supporting, declining outside contributions.",
-            "Alcoholics Anonymous should remain forever nonprofessional, but our service centers may employ special workers.",
-            "AA, as such, ought never be organized; but we may create service boards or committees directly responsible to those they serve.",
-            "Alcoholics Anonymous has no opinion on outside issues; hence the AA name ought never be drawn into public controversy.",
-            "Our public relations policy is based on attraction rather than promotion; we need always maintain personal anonymity at the level of press, radio, and films.",
-            "Anonymity is the spiritual foundation of all our Traditions, ever reminding us to place principles before personalities."
-        ];
-        
-        // --- NEW: Simulated AA Literature Sections for Search ---
-        // In a real app, this data would come from a database or indexed text files.
-        const AA_LITERATURE = [
-            { source: "Big Book", chapter: "More About Alcoholism", text: "The great fact is that **deep down in every man, woman, and child, is the fundamental idea of God**. It may be obscured by calamity, by pomp, by worship of other things, but in some form or other it is there. For **faith** in a Power greater than ourselves, and miraculous demonstrations of that Power, is the heart of the matter. We must be willing to clear away the wreckage of our past and embrace a new way of living." },
-            { source: "Twelve Steps and Twelve Traditions (12&12)", chapter: "Step Two", text: "The minute you **honestly want to stop** is the minute you have found the path to the program. Sanity is not something recovered once, but a continuous process. We found that the main thing was to **keep coming back**, and let the program work. *Courage* is the first spiritual quality a person needs to develop." },
-            { source: "Big Book", chapter: "How It Works", text: "We found that the basic trouble of the alcoholic was an **egocentricity**, a preoccupation with self. It is a spiritual disease that requires a spiritual solution. We were having trouble with personal relationships, we couldn't control our emotional natures, we were a prey to fear and worry, we were full of self-pity, and we had a feeling of uselessness. **All of these symptoms are tied to the self-will run riot.**" },
-            { source: "Twelve Steps and Twelve Traditions (12&12)", chapter: "Step Ten", text: "**Continue to take personal inventory and when we were wrong promptly admitted it.** This is a process of constant self-evaluation, not a one-time event. When we are disturbed, we immediately ask ourselves what we have done, and admit it to another person and God, then make amends. It's how we find **peace**." },
-            { source: "Daily Reflection", chapter: "Acceptance", text: "**Acceptance** is the answer to all my problems today. When I am disturbed, it is because I find some person, place, thing, or situation—some fact of my life—unacceptable to me, and I can find no serenity until I accept that reality. The **Serenity Prayer** becomes a daily compass for acceptance and courage." },
-            { source: "Big Book", chapter: "Into Action", text: "Having had a spiritual awakening as the result of these Steps, we tried to carry this **message** to alcoholics, and to practice these principles in all our affairs. The message is simple: you can recover. You must have **rigorous honesty** with yourself and with others." },
-        ];
-
-
-        // --- Daily Reading Content (Simulated for API-free environment) ---
-
-        const DAILY_MEDITATIONS = Array.from({ length: 366 }, (_, i) => ({
-            title: Principle Focus: Serenity (${i + 1}/366),
-            text: On this day, we reflect on the **Serenity Prayer**. Grant me the serenity to accept the things I cannot change, courage to change the things I can, and wisdom to know the difference. The challenge is not just reciting these words, but truly living them. Acceptance doesn't mean defeat; it means acknowledging reality, which is the necessary first step toward genuine change. Today, focus your energy only on that which is within your power to influence: your own attitude and actions. Let go of the rest.,
-            affirmation: I choose courage over fear and serenity over chaos. My focus today is on Step 3.
-        }));
-
-        const JUST_FOR_TODAY = Array.from({ length: 366 }, (_, i) => ({
-            jft: Just for Today, I will practice **Live and Let Live (${i + 1}/366)**. I will not try to run other people's lives or impose my will on them. I will remember that everyone is on their own path, and my primary responsibility is maintaining my own sobriety.,
-            thought: We admitted we couldn't lick alcohol with our own power. We now seek to admit we can't lick the world's problems, either.,
-            promise: By the end of the day, I will feel less anxious and more connected to the principle of tolerance and acceptance.
-        }));
-
-
-        // --- Global State ---
-        // Removed 'inventory' and 'check-in' from default tabs
-        let activeTab = 'daily'; // 'daily', 'guidance', 'search'
-        let activeGuidance = 'steps'; // 'steps', 'traditions', 'prayer'
-        let isSpeaking = false;
-        let isPaused = false;
-        let speechUtterance = null;
-        let searchTerm = '';
-        let searchResults = [];
-        
-        const currentDate = new Date();
-
-        // --- Utility Functions ---
-
-        // Calculate the day of the year (0-indexed, 0 to 365)
-        function getDayOfYearIndex() {
-            const start = new Date(currentDate.getFullYear(), 0, 0);
-            const diff = (currentDate - start) + ((start.getTimezoneOffset() - currentDate.getTimezoneOffset()) * 60 * 1000);
-            const oneDay = 1000 * 60 * 60 * 24;
-            return Math.floor(diff / oneDay) % 366; 
-        }
-
-        function formatDate() {
-            return currentDate.toLocaleDateString('en-US', {
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-        }
-        
-        // Simple markdown to HTML conversion for bold text
-        function formatText(text) {
-            return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        }
-
-        // --- Search Logic (New) ---
-        function handleSearch(event) {
-            // Prevent form submission if this were a real form
-            if (event) event.preventDefault(); 
+            <!-- Daily Meditation Card -->
+            <div class="bg-white p-5 rounded-xl shadow-md border border-gray-100 mb-6">
+                <div class="flex items-center text-primary-dark mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                    <span id="currentDate" class="font-medium text-sm"></span>
+                </div>
+                <h3 class="text-lg font-extrabold text-gray-900 mb-3">The Serenity Prayer</h3>
+                <p id="dailyMeditationText" class="text-gray-600 leading-relaxed whitespace-pre-wrap">
+                    <!-- Content populated by script -->
+                </p>
+            </div>
             
-            const inputElement = document.getElementById('search-input');
-            if (!inputElement) return;
-
-            searchTerm = inputElement.value.trim().toLowerCase();
+            <!-- Daily Thought Card -->
+            <div class="bg-white p-5 rounded-xl shadow-md border border-gray-100 mb-6">
+                <h3 class="text-lg font-extrabold text-gray-900 mb-3 border-b pb-2 border-gray-100">A Thought for the Day</h3>
+                
+                <p id="jftText" class="text-gray-700 leading-relaxed text-sm font-semibold italic">
+                    <!-- Content populated by script -->
+                </p>
+            </div>
             
-            if (searchTerm.length < 3) {
-                searchResults = [];
-                // Clear the results but keep the last search term for context
-                renderTabContent('search');
+        </div>
+
+        <!-- Steps View -->
+        <div id="stepsView" class="view hidden">
+            <h2 class="text-2xl font-extrabold text-primary-dark mb-4">The Twelve Steps of AA</h2>
+            <div id="stepsContent" class="bg-white p-5 rounded-xl shadow-md border border-gray-100 text-gray-700 whitespace-pre-wrap"></div>
+        </div>
+
+        <!-- Traditions View -->
+        <div id="traditionsView" class="view hidden">
+            <h2 class="text-2xl font-extrabold text-primary-dark mb-4">The Twelve Traditions of AA</h2>
+            <div id="traditionsContent" class="bg-white p-5 rounded-xl shadow-md border border-gray-100 text-gray-700 whitespace-pre-wrap"></div>
+        </div>
+
+        <!-- Search Results View -->
+        <div id="searchResultsView" class="view hidden">
+            <h2 class="text-2xl font-extrabold text-primary-dark mb-4">Search Results</h2>
+            <div id="searchResults" class="space-y-4">
+                <p id="noResults" class="text-gray-500 hidden">No excerpts found. Try searching for "sponsor", "alcoholic", or "God".</p>
+                <p id="searchInstruction" class="text-gray-500">Type a keyword in the search bar above to find relevant literature excerpts.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Message Box (Instead of alert()) -->
+    <div id="messageBox" class="fixed inset-0 bg-black/50 hidden justify-center items-center z-50 p-4">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full">
+            <h3 class="text-xl font-bold text-primary-dark mb-3" id="messageTitle"></h3>
+            <p class="text-gray-700 mb-4" id="messageText"></p>
+            <button id="closeMessageBox" class="w-full bg-primary-dark text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">Close</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // --- Firebase Global Instances (Kept for environment compatibility) ---
+    let app, db, auth, userId;
+    let isAuthReady = false;
+
+    // --- AA Literature Data Definitions (Embedded) ---
+    const LITERATURE_DATA = {
+        dailyReading: {
+            meditation: "God, grant us the serenity\nto accept the things we cannot change,\nCourage to change the things we can,\nand wisdom to know the difference.",
+            jft: "When we are honest with ourselves, we realize that we must face our character defects, not run from them. The promises are coming true if we dedicate ourselves to the program. We are no longer alone, and we are no longer victims."
+        },
+        steps: [
+            "1. We admitted we were powerless over alcohol—that our lives had become unmanageable.",
+            "2. Came to believe that a Power greater than ourselves could restore us to sanity.",
+            "3. Made a decision to turn our will and our lives over to the care of God as we understood Him.",
+            "4. Made a searching and fearless moral inventory of ourselves.",
+            "5. Admitted to God, to ourselves, and to another human being the exact nature of our wrongs.",
+            "6. Were entirely ready to have God remove all these defects of character.",
+            "7. Humbly asked Him to remove our shortcomings.",
+            "8. Made a list of all persons we had harmed, and became willing to make amends to them all.",
+            "9. Made direct amends to such people wherever possible, except when to do so would injure them or others.",
+            "10. Continued to take personal inventory and when we were wrong promptly admitted it.",
+            "11. Sought through prayer and meditation to improve our conscious contact with God as we understood Him, praying only for knowledge of His will for us and the power to carry that out.",
+            "12. Having had a spiritual awakening as the result of these Steps, we tried to carry this message to alcoholics, and to practice these principles in all our affairs."
+        ].join('\n\n'),
+        traditions: [
+            "1. Our common welfare should come first; personal recovery depends upon A.A. unity.",
+            "2. For our group purpose there is but one ultimate authority—a loving God as He may express Himself in our group conscience. Our leaders are but trusted servants; they do not govern.",
+            "3. The only requirement for A.A. membership is a desire to stop drinking.",
+            "4. Each group should be autonomous except in matters affecting other groups or A.A. as a whole.",
+            "5. Each group has but one primary purpose—to carry its message to the alcoholic who still suffers.",
+            "6. An A.A. group ought never endorse, finance, or lend the A.A. name to any related facility or outside enterprise, lest problems of money, property, or prestige divert us from our primary purpose.",
+            "7. Every A.A. group ought to be fully self-supporting, declining outside contributions.",
+            "8. Alcoholics Anonymous should remain forever nonprofessional, but our service centers may employ special workers.",
+            "9. A.A., as such, ought never be organized; but we may create service boards or committees directly responsible to those they serve.",
+            "10. Alcoholics Anonymous has no opinion on outside issues; hence the A.A. name ought never be drawn into public controversy.",
+            "11. Our public relations policy is based on attraction rather than promotion; we need always maintain personal anonymity at the level of press, radio, and films.",
+            "12. Anonymity is the spiritual foundation of all our Traditions, ever reminding us to place principles before personalities."
+        ].join('\n\n'),
+        searchExcerpts: [
+            // Core Excerpts
+            { source: "Big Book, Chapter 5", text: "If we have decided we want to be honest and try the A.A. way, we should have no difficulty at all. It is suggested that we get a **sponsor**.", keywords: ["sponsor", "guidance", "honest"] },
+            { source: "Twelve Steps and Twelve Traditions, Step 1", text: "The words 'we admitted' are important, for until a person can admit that he is an **alcoholic** and is powerless, he cannot begin recovery.", keywords: ["alcoholic", "powerless", "admitted"] },
+            { source: "Twelve Steps and Twelve Traditions, Tradition 12", text: "**Anonymity** is the spiritual foundation of all our Traditions, ever reminding us to place principles before personalities.", keywords: ["anonymity", "principles"] },
+            { source: "Big Book, Chapter 6", text: "We decided to turn our will and our lives over to the care of **God** as we understood Him.", keywords: ["God", "higher power", "will"] },
+            { source: "Twelve Steps and Twelve Traditions, Step 10", text: "We continue to take personal inventory and when we were wrong, promptly **admitted** it.", keywords: ["admitted", "inventory", "wrong"] },
+            // Expanded Excerpts
+            { source: "Big Book, Chapter 5", text: "**Resentment** is the number one offender. It destroys more alcoholics than anything else. From it stem all forms of spiritual disease.", keywords: ["resentment", "offender", "disease", "spiritual"] },
+            { source: "Big Book, Chapter 7", text: "Practical experience shows that nothing will so much insure immunity from drinking as intensive **work with other alcoholics**.", keywords: ["service", "work", "help", "others", "immunity"] },
+            { source: "Big Book, Chapter 6 (Night Review)", text: "When we retire at night, we constructively review our day. Were we resentful, selfish, dishonest or **afraid**?", keywords: ["afraid", "fear", "review", "night", "dishonest"] },
+            { source: "Big Book, Promises", text: "We will comprehend the word **serenity** and we will know peace. No matter how far down the scale we have gone, we will see how our experience can benefit others.", keywords: ["serenity", "peace", "promises", "benefit"] },
+            { source: "Motto/Principle", text: "We put '**First Things First**' by attending to our spiritual life every day, knowing that our sobriety depends on it.", keywords: ["first things first", "motto", "sobriety", "spiritual"] },
+            { source: "Big Book, Chapter 11", text: "We are not cured of alcoholism. What we really have is a daily **reprieve** contingent on the maintenance of our spiritual condition.", keywords: ["reprieve", "spiritual condition", "cured", "alcoholism"] },
+            { source: "Big Book, Chapter 5", text: "There is a solution. Almost none of us liked the self-searching, the leveling of our pride, the confession of shortcomings, but we saw that it worked, and we decided to go through with it.", keywords: ["solution", "pride", "self-searching", "confession"] },
+            { source: "Twelve Steps and Twelve Traditions, Tradition 1", text: "Our common **welfare** should come first; personal recovery depends upon A.A. unity.", keywords: ["welfare", "unity", "group"] },
+        ]
+    };
+
+    // --- Firebase Initialization (Kept for Canvas Environment Requirements) ---
+    async function initFirebase() {
+        try {
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+            if (Object.keys(firebaseConfig).length === 0) {
+                console.warn("Firebase configuration is missing. Running in non-persistent mode.");
+                userId = crypto.randomUUID(); // Mock ID if no config
+                isAuthReady = true;
                 return;
             }
 
-            // Perform simple text search across the simulated literature
-            searchResults = AA_LITERATURE.map(item => {
-                const searchInText = item.text.toLowerCase();
-                if (searchInText.includes(searchTerm)) {
-                    // Create an excerpt by finding the first match
-                    const matchIndex = searchInText.indexOf(searchTerm);
-                    const excerptStart = Math.max(0, matchIndex - 50); // 50 chars before
-                    const excerptEnd = Math.min(item.text.length, matchIndex + searchTerm.length + 150); // 150 chars after
-                    
-                    let excerpt = item.text.substring(excerptStart, excerptEnd);
-                    
-                    // Highlight the search term in the excerpt (case-insensitive)
-                    const regex = new RegExp(searchTerm, 'gi');
-                    excerpt = excerpt.replace(regex, (match) => `<mark class="bg-amber-200">${match}</mark>`);
-                    
-                    // Add ellipsis if the excerpt is truncated
-                    const prefix = excerptStart > 0 ? '... ' : '';
-                    const suffix = excerptEnd < item.text.length ? ' ...' : '';
-                    
-                    return {
-                        ...item,
-                        excerpt: prefix + excerpt + suffix,
-                    };
-                }
-                return null;
-            }).filter(item => item !== null);
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
 
-            renderTabContent('search');
-        }
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-
-        // --- State Management and Re-rendering ---
-
-        function setActiveTab(newTab) {
-            activeTab = newTab;
-            stopReading(); // Stop speech when switching tabs
-            renderApp();
-        }
-
-        function setActiveGuidance(newGuidance) {
-            activeGuidance = newGuidance;
-            stopReading(); // Stop speech when switching sections
-            renderTabContent('guidance'); // Re-render only content area
-        }
-
-        function updateSpeechState(speaking, paused) {
-            isSpeaking = speaking;
-            isPaused = paused;
-            // Only re-render the controls inside the active tab
-            renderTabContent(activeTab);
-        }
-
-        // --- TTS Handler ---
-
-        function stopReading() {
-            if (window.speechSynthesis) {
-                window.speechSynthesis.cancel();
-                updateSpeechState(false, false);
-            }
-        }
-
-        function handleReadAloud(textToSpeak) {
-            const synth = window.speechSynthesis;
-
-            if (!synth) {
-                console.error("Text-to-Speech not supported in this browser.");
-                return;
-            }
-
-            if (isSpeaking && !isPaused) {
-                // Pause
-                synth.pause();
-                updateSpeechState(true, true);
-            } else if (isSpeaking && isPaused) {
-                // Resume
-                synth.resume();
-                updateSpeechState(true, false);
+            if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
             } else {
-                // Start New
-                synth.cancel();
-                
-                // Remove markdown syntax for cleaner reading
-                const cleanText = textToSpeak.replace(/\*\*(.*?)\*\*/g, (match, p1) => p1);
-                
-                speechUtterance = new SpeechSynthesisUtterance(cleanText);
-                
-                // Get voices when available
-                synth.onvoiceschanged = () => {
-                    const voices = synth.getVoices();
-                    speechUtterance.voice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
-                };
-                
-                // If voices are already loaded, assign one
-                const voices = synth.getVoices();
-                if (voices.length > 0) {
-                    speechUtterance.voice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+                await signInAnonymously(auth);
+            }
+            
+            userId = auth.currentUser?.uid || crypto.randomUUID();
+            isAuthReady = true;
+            console.log("Firebase initialized and user signed in:", userId);
+
+        } catch (error) {
+            console.error("Error during Firebase initialization or sign-in:", error);
+            showMessage("Initialization Error", "Failed to connect or authenticate with the database. Functionality is limited.");
+        }
+    }
+    
+    // --- Navigation Functions ---
+    const views = {
+        homeView: document.getElementById('homeView'),
+        stepsView: document.getElementById('stepsView'),
+        traditionsView: document.getElementById('traditionsView'),
+        searchResultsView: document.getElementById('searchResultsView')
+    };
+    
+    let currentView = 'homeView';
+
+    function showView(viewId) {
+        // Hide all views and remove active class from all buttons
+        document.querySelectorAll('.view').forEach(view => view.classList.add('hidden'));
+        document.querySelectorAll('.nav-button').forEach(button => button.classList.remove('active'));
+
+        // Show the requested view
+        const viewElement = views[viewId];
+        if (viewElement) {
+            viewElement.classList.remove('hidden');
+            currentView = viewId;
+        }
+
+        // Set the active button
+        const activeButton = document.querySelector(`#top-nav .nav-button[data-view="${viewId}"]`);
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+
+        // Handle specific view setup
+        if (viewId === 'stepsView') {
+            document.getElementById('stepsContent').textContent = LITERATURE_DATA.steps;
+        } else if (viewId === 'traditionsView') {
+            document.getElementById('traditionsContent').textContent = LITERATURE_DATA.traditions;
+        } else if (viewId === 'searchResultsView') {
+            // Ensure search instruction is visible if input is empty
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput.value.trim().length < 3) {
+                 document.getElementById('searchResults').innerHTML = '<p id="searchInstruction" class="text-gray-500">Type a keyword in the search bar above to find relevant literature excerpts.</p>';
+            }
+        }
+    }
+
+    // --- Search Functionality ---
+    function performSearch(query) {
+        const normalizedQuery = query.toLowerCase().trim();
+        const resultsContainer = document.getElementById('searchResults');
+        resultsContainer.innerHTML = ''; 
+        
+        // Only trigger search view if query is non-empty and long enough (3 chars minimum)
+        if (normalizedQuery.length >= 3) {
+            // Automatically switch to search view when typing
+            showView('searchResultsView');
+
+            const filteredResults = LITERATURE_DATA.searchExcerpts.filter(item =>
+                item.keywords.some(k => k.includes(normalizedQuery)) ||
+                item.text.toLowerCase().includes(normalizedQuery)
+            );
+
+            if (filteredResults.length === 0) {
+                resultsContainer.innerHTML = '<p class="text-gray-500">No excerpts found. Try searching for "resentment", "fear", or "service".</p>';
+                return;
+            }
+
+            filteredResults.forEach(result => {
+                const resultElement = document.createElement('div');
+                resultElement.className = 'bg-white p-4 rounded-xl shadow-md border border-gray-100';
+
+                // Highlight the query in the text
+                const highlightedText = result.text.replace(
+                    new RegExp('(' + normalizedQuery + ')', 'gi'),
+                    '<span class="font-bold text-red-600 bg-indigo-100 p-0.5 rounded">$1</span>'
+                );
+
+                resultElement.innerHTML = `
+                    <h3 class="text-xs font-semibold text-primary-dark mb-1">${result.source}</h3>
+                    <p class="text-gray-700 leading-snug">${highlightedText}</p>
+                `;
+                resultsContainer.appendChild(resultElement);
+            });
+        } else if (currentView === 'searchResultsView' && normalizedQuery.length === 0) {
+            // If the search view is active and the user clears the input, return to Home
+            showView('homeView');
+        }
+    }
+
+    // --- Utility Functions ---
+
+    // Custom Message Box (Replaces alert())
+    function showMessage(title, text) {
+        document.getElementById('messageTitle').textContent = title;
+        document.getElementById('messageText').textContent = text;
+        document.getElementById('messageBox').classList.remove('hidden');
+        document.getElementById('messageBox').classList.add('flex');
+    }
+
+    function hideMessage() {
+        document.getElementById('messageBox').classList.add('hidden');
+        document.getElementById('messageBox').classList.remove('flex');
+    }
+
+    // --- State & Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set the current date
+        const options = { month: 'long', day: 'numeric', year: 'numeric' };
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', options);
+
+        // Populate daily reading content
+        document.getElementById('dailyMeditationText').textContent = LITERATURE_DATA.dailyReading.meditation;
+        document.getElementById('jftText').textContent = LITERATURE_DATA.dailyReading.jft;
+        
+        // --- Attach Event Listeners ---
+
+        // 1. Top Navigation Buttons
+        document.querySelectorAll('#top-nav .nav-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Clear search input if navigating away from search
+                if (button.dataset.view !== 'searchResultsView') {
+                    document.getElementById('searchInput').value = '';
                 }
-
-                speechUtterance.rate = 1.0; 
-                
-                speechUtterance.onstart = () => updateSpeechState(true, false);
-                speechUtterance.onend = () => updateSpeechState(false, false);
-                
-                speechUtterance.onerror = (event) => {
-                    console.error("SpeechSynthesisUtterance error:", event);
-                    updateSpeechState(false, false);
-                };
-
-                synth.speak(speechUtterance);
-            }
-        }
-
-        // --- Rendering Sub-Components ---
-        
-        function ReadingControls(textToRead) {
-            const ttsSupported = !!window.speechSynthesis;
-            
-            let buttonContent =                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 lucide lucide-volume-2 mr-2">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                </svg>
-                <span>Read Aloud</span>
-            ;            let buttonClass = 'bg-blue-700 hover:bg-blue-800 hover:scale-[1.01]';
-            // Important: Escape the text to be read for the onclick attribute
-            let action = `handleReadAloud('${textToRead.replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '')}')`;
-
-            if (!ttsSupported) {
-                buttonContent = '<span>TTS Not Supported</span>';
-                buttonClass = 'bg-gray-400 cursor-not-allowed';
-                action = '';
-            } else if (isSpeaking && !isPaused) {
-                buttonContent =                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 lucide lucide-pause mr-2">
-                        <rect x="6" y="4" width="4" height="16"/>
-                        <rect x="14" y="4" width="4" height="16"/>
-                    </svg>
-                    <span>Pause Reading</span>
-                ;                buttonClass = 'bg-amber-500 hover:bg-amber-600 text-gray-800';
-            } else if (isSpeaking && isPaused) {
-                 buttonContent =                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 lucide lucide-play mr-2">
-                        <polygon points="5 3 19 12 5 21 5 3"/>
-                    </svg>
-                    <span>Resume Reading</span>
-                ;                buttonClass = 'bg-green-600 hover:bg-green-700';
-            }
-
-            return                 <div id="reading-controls" class="flex space-x-3 mt-4">
-                    <button
-                        onclick="${action}"
-                        ${!ttsSupported ? 'disabled' : ''}
-                        class="flex-grow flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-bold transition-all duration-300 transform shadow-lg text-white ${buttonClass}"
-                    >
-                        ${buttonContent}
-                    </button>
-                    
-                    ${isSpeaking ?                         <button
-                            onclick="stopReading()"
-                            class="p-3 bg-red-500 hover:bg-red-600 text-white rounded-xl shadow-lg transition duration-200"
-                            aria-label="Stop Reading"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 lucide lucide-stop-circle">
-                                <circle cx="12" cy="12" r="10"/>
-                                <rect x="9" y="9" width="6" height="6"/>
-                            </svg>
-                        </button>
-                     : ''}                </div>
-            ;        }
-
-        function renderDailyReadingView() {
-            const readingIndex = getDayOfYearIndex();
-            const dailyMeditation = DAILY_MEDITATIONS[readingIndex];
-            const justForToday = JUST_FOR_TODAY[readingIndex];
-            
-            // Text to speak is the combination of all content
-            const fullMeditationText = `${dailyMeditation.title}. ${dailyMeditation.text}. Affirmation: ${dailyMeditation.affirmation}`;
-            const fullJFTText = `${justForToday.jft}. Thought: ${justForToday.thought}. Promise: ${justForToday.promise}`;
-
-            return                 <div class="space-y-8">
-                    <div class="text-center pb-4 border-b border-gray-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8 text-blue-700 mx-auto mb-2 lucide lucide-calendar">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                            <line x1="16" y1="2" x2="16" y2="6"/>
-                            <line x1="8" y1="2" x2="8" y2="6"/>
-                            <line x1="3" y1="10" x2="21" y2="10"/>
-                        </svg>
-                        <h3 class="text-lg font-bold text-gray-800">${formatDate()}</h3>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-xl border-t-4 border-blue-600 shadow-lg transition duration-300 hover:shadow-xl">
-                        <h2 class="text-2xl font-extrabold text-blue-800 mb-2 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 mr-2 text-amber-500 lucide lucide-book-open">
-                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-                            </svg>
-                            Daily Meditation
-                        </h2>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-3">${dailyMeditation.title}</h3>
-                        <p class="whitespace-pre-line text-gray-700 leading-relaxed mb-4 font-serif">
-                            ${formatText(dailyMeditation.text)}
-                        </p>
-                        <p class="font-bold text-sm text-amber-600 border-l-4 border-amber-500 pl-3 py-1 bg-amber-50/50 rounded-r">
-                            Affirmation: ${dailyMeditation.affirmation}
-                        </p>
-                        ${ReadingControls(fullMeditationText)}
-                    </div>
-                    
-                    <div class="bg-white p-6 rounded-xl border-t-4 border-amber-500 shadow-lg transition duration-300 hover:shadow-xl">
-                        <h2 class="text-2xl font-extrabold text-amber-700 mb-3 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 mr-2 text-blue-800 lucide lucide-clock">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                            </svg>
-                             Just for Today
-                        </h2>
-                        <div class="space-y-3 text-gray-700">
-                            <p class="font-semibold text-blue-700">Today's Commitment:</p>
-                            <p>${formatText(justForToday.jft)}</p>
-                            
-                            <p class="font-semibold pt-2 text-blue-700">Thought for the Day:</p>
-                            <p class="italic bg-gray-50 p-3 rounded-lg border border-gray-200">"${justForToday.thought}"</p>
-
-                            <p class="font-semibold pt-2 text-blue-700">The Promise:</p>
-                            <p>${justForToday.promise}</p>
-                        </div>
-                        ${ReadingControls(fullJFTText)}
-                    </div>
-                </div>
-            ;        }
-
-        function renderGuidanceContent() {
-            let title, iconHtml, contentHtml, textToRead;
-
-            switch (activeGuidance) {
-                case 'steps':
-                    title = 'The Twelve Steps';
-                    iconHtml =                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-2 text-amber-500 lucide lucide-scroll-text">
-                            <path d="M22 10s-2.14-1.92-5-2-5 2-5 2V4l-2 2-2-2-2 2v10s2.14 1.92 5 2 5-2 5-2"/>
-                            <path d="M8 13h4"/>
-                            <path d="M8 17h4"/>
-                        </svg>
-                    ;                    contentHtml =                         <ol class="list-decimal list-inside space-y-3 text-gray-700 text-left pl-4">
-                            ${TWELVE_STEPS.map((step, index) =>                                 <li class="leading-relaxed">
-                                    <span class="font-semibold text-blue-700">Step ${index + 1}:</span> ${step}
-                                </li>
-                            ).join('')}                        </ol>
-                    ;                    textToRead = TWELVE_STEPS.join('. ');
-                    break;
-                case 'traditions':
-                    title = 'The Twelve Traditions';
-                    iconHtml =                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-2 text-amber-500 lucide lucide-shield">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        </svg>
-                    ;                    contentHtml =                         <ol class="list-decimal list-inside space-y-3 text-gray-700 text-left pl-4">
-                            ${TWELVE_TRADITIONS.map((tradition, index) =>                                 <li class="leading-relaxed">
-                                    <span class="font-semibold text-blue-700">Tradition ${index + 1}:</span> ${tradition}
-                                </li>
-                            ).join('')}                        </ol>
-                    ;                    textToRead = TWELVE_TRADITIONS.join('. ');
-                    break;
-                case 'prayer':
-                    title = 'The Serenity Prayer';
-                    iconHtml =                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-2 text-amber-500 lucide lucide-heart">
-                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-                        </svg>
-                    ;                    contentHtml =                         <div class="text-center p-8 bg-amber-50 border-2 border-amber-300 rounded-xl shadow-inner">
-                            <p class="text-xl font-serif italic text-gray-800 leading-9 whitespace-pre-line">
-                                ${SERENITY_PRAYER}
-                            </p>
-                        </div>
-                    ;                    textToRead = SERENITY_PRAYER;
-                    break;
-            }
-
-            // Render the guidance content card, including the dynamically rendered ReadingControls
-            return                 <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
-                    ${iconHtml} ${title}
-                </h3>
-                ${contentHtml}
-                ${ReadingControls(textToRead)}
-            ;        }
-
-
-        function renderGuidanceView() {
-            // Navigation Buttons
-            const buttons =                 <div class="flex justify-center flex-wrap gap-2 p-3 bg-white rounded-xl shadow-md border border-gray-100">
-                    <button
-                        onclick="setActiveGuidance('steps')"
-                        class="px-4 py-2 rounded-full font-semibold transition-colors duration-200 text-sm ${activeGuidance === 'steps' ? 'bg-blue-700 text-white shadow-lg' : 'bg-gray-100 text-blue-700 hover:bg-gray-200'}"
-                    >
-                        12 Steps
-                    </button>
-                    <button
-                        onclick="setActiveGuidance('traditions')"
-                        class="px-4 py-2 rounded-full font-semibold transition-colors duration-200 text-sm ${activeGuidance === 'traditions' ? 'bg-blue-700 text-white shadow-lg' : 'bg-gray-100 text-blue-700 hover:bg-gray-200'}"
-                    >
-                        12 Traditions
-                    </button>
-                    <button
-                        onclick="setActiveGuidance('prayer')"
-                        class="px-4 py-2 rounded-full font-semibold transition-colors duration-200 text-sm ${activeGuidance === 'prayer' ? 'bg-blue-700 text-white shadow-lg' : 'bg-gray-100 text-blue-700 hover:bg-gray-200'}"
-                    >
-                        Serenity Prayer
-                    </button>
-                </div>
-            ;
-            // Main Content Display
-            const contentCard =                 <div id="guidance-content" class="bg-white p-6 rounded-xl shadow-2xl border-t-8 border-amber-500">
-                    ${renderGuidanceContent()}
-                </div>
-            ;
-            return                 <div class="space-y-6">
-                    <h2 class="text-3xl font-extrabold text-blue-900 text-center">Program Guidance</h2>
-                    ${buttons}
-                    ${contentCard}
-                </div>
-            ;        }
-
-        // --- NEW: Search View Renderer ---
-        function renderSearchView() {
-            const resultList = searchResults.length > 0 ? 
-                `<div class="mt-6 space-y-4">
-                    <h3 class="text-xl font-bold text-gray-700">Found ${searchResults.length} Reference(s):</h3>
-                    ${searchResults.map((result, index) => 
-                        `<div class="bg-white p-5 rounded-lg shadow border-l-4 border-blue-600">
-                            <p class="text-sm font-semibold text-blue-800 mb-1">
-                                ${result.source} - <span class="text-amber-600">${result.chapter}</span>
-                            </p>
-                            <p class="text-gray-700 leading-relaxed text-sm font-serif">
-                                ...${result.excerpt}...
-                            </p>
-                            <div class="mt-3">
-                                ${ReadingControls(result.text)}
-                            </div>
-                        </div>`
-                    ).join('')}
-                </div>`
-                : searchTerm.length >= 3 ?
-                `<div class="text-center p-8 bg-amber-50 rounded-xl border border-amber-300 mt-6">
-                    <p class="text-lg font-semibold text-gray-700">No results found for "${searchTerm}".</p>
-                    <p class="text-sm text-gray-500 mt-1">Try a different keyword like 'courage', 'honesty', or 'amends'.</p>
-                </div>`
-                : '';
-
-
-            return `
-                <div class="space-y-6">
-                    <h2 class="text-3xl font-extrabold text-blue-900 text-center flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7 mr-2 text-amber-500 lucide lucide-search">
-                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                        </svg>
-                        Literature Search
-                    </h2>
-                    
-                    <form onsubmit="handleSearch(event)" class="bg-white p-4 rounded-xl shadow-lg border-t-8 border-blue-600 flex space-x-2">
-                        <input
-                            id="search-input"
-                            type="search"
-                            value="${searchTerm}"
-                            placeholder="e.g., courage, honesty, resentment, amends"
-                            class="flex-grow p-3 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition duration-150"
-                        />
-                        <button 
-                            type="submit" 
-                            class="px-6 py-3 bg-blue-700 text-white font-bold rounded-lg hover:bg-blue-800 transition duration-200 flex items-center"
-                        >
-                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 lucide lucide-search">
-                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                            </svg>
-                        </button>
-                    </form>
-
-                    <p class="text-center text-sm text-gray-500">
-                        Search the Big Book, 12&12, and Daily Reflections for tips on recovery and removing shortcomings.
-                    </p>
-
-                    ${resultList}
-                </div>
-            `;
-        }
-
-        
-        // Function to render just the content area (used for minor state updates)
-        function renderTabContent(tab) {
-             const mainElement = document.getElementById('main-content');
-             if (!mainElement) return;
-
-             let html = '';
-             switch (tab) {
-                case 'daily':
-                    html = renderDailyReadingView();
-                    break;
-                case 'guidance':
-                    // We need to render the full view since both navigation and content change
-                    html = renderGuidanceView(); 
-                    break;
-                case 'search':
-                    html = renderSearchView();
-                    break;
-             }
-             mainElement.innerHTML = html;
-             
-             // Re-attach event listeners for search form after content is injected
-             if (tab === 'search') {
-                 document.getElementById('search-input').addEventListener('keypress', function (e) {
-                    if (e.key === 'Enter') {
-                        handleSearch(e);
-                    }
-                 });
-             }
-        }
-
-        // --- Main App Renderer ---
-
-        function renderApp() {
-            const app = document.getElementById('app');
-            if (!app) return;
-
-            // Template for the whole application structure
-            app.innerHTML =                 <header class="bg-blue-900 text-white p-4 shadow-xl">
-                    <div class="flex justify-between items-center">
-                        <h1 class="text-2xl font-extrabold flex items-center space-x-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-amber-400 lucide lucide-users">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                            </svg>
-                            <span>AA Companion</span>
-                        </h1>
-                        <span class="text-sm opacity-80">One Day At A Time</span>
-                    </div>
-                </header>
-
-                <nav class="flex justify-around bg-gray-50 border-b border-gray-200 shadow-sm">
-                    ${TabButton('daily', 'Calendar')}
-                    ${TabButton('guidance', 'Briefcase')}
-                    ${TabButton('search', 'Search')}
-                </nav>
-
-                <main id="main-content" class="flex-grow p-6 bg-gray-100">
-                    </main>
-                
-                <footer class="bg-blue-950 text-white text-xs text-center p-2 mt-auto">
-                    <p>AA Companion | Easy Does It. | Anonymity is the spiritual foundation of all our Traditions.</p>
-                </footer>
-            ;
-            // After rendering the structure, inject the content
-            renderTabContent(activeTab);
-        }
-
-        // Helper function for rendering navigation buttons
-        function TabButton(name, iconName) {
-            const current = activeTab === name;
-            const iconSize = 'h-6 w-6 sm:h-7 sm:w-7';
-            const iconSvg = getIconSvg(iconName, iconSize);
-
-            // Map internal name to display name
-            const displayName = name === 'search' ? 'Literature Search' : 
-                                name === 'daily' ? 'Daily Reading' : 'Guidance';
-
-            return                 <button
-                    onclick="setActiveTab('${name}')"
-                    class="flex flex-col items-center p-3 sm:p-4 transition-all duration-200 rounded-t-lg 
-                        ${current ? 'bg-white text-blue-800 border-b-4 border-amber-500 shadow-t-xl' : 'text-gray-400 hover:text-blue-600 hover:bg-gray-100'}
-                    "
-                >
-                    ${iconSvg}
-                    <span class="text-xs sm:text-sm font-medium mt-1">${displayName}</span>
-                </button>
-            ;        }
-        
-        // Simplified SVG provider (using Lucide's general structure)
-        function getIconSvg(name, classes) {
-            // These paths are hardcoded from Lucide for simplicity and single-file mandate
-            const icons = {
-                'Calendar': '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
-                'Briefcase': '<rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
-                'Search': '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
-                // CheckCircle and others were removed as their tabs are gone
-            };
-            
-            const path = icons[name] || '';
-            return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${classes} lucide lucide-${name.toLowerCase()}">${path}</svg>`;
-        }
-
-
-        // --- Initialization ---
-
-        document.addEventListener('DOMContentLoaded', () => {
-            renderApp();
-            
-            // Cleanup on page unload (important for TTS)
-            window.addEventListener('beforeunload', () => {
-                stopReading();
+                showView(button.dataset.view);
             });
         });
-    </script>
+
+        // 2. Search Input (Triggers search and navigates to results)
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            performSearch(e.target.value);
+        });
+
+        // 3. Message Box Close Button
+        document.getElementById('closeMessageBox').addEventListener('click', hideMessage);
+
+        // Initialize Firebase (for environment compatibility)
+        initFirebase();
+        
+        // Show default view
+        showView('homeView');
+    });
+
+</script>
+
 </body>
 </html>
