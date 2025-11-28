@@ -6,6 +6,12 @@
     <title>AA Companion - Literature & Guidance</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FIX: Use Global/Compat Firebase Scripts for wider compatibility (local/GitHub Pages) -->
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+
     <style>
         /* Custom styles for the mobile screen container */
         body {
@@ -175,12 +181,11 @@
     </div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+<script>
     // --- Firebase Global Instances (Kept for environment compatibility) ---
+    // NOTE: These variables are set up to run *without* Firebase functions 
+    // when running locally/on GitHub Pages. Firebase data storage will only 
+    // work when running inside the Canvas environment.
     let app, db, auth, userId;
     let isAuthReady = false;
 
@@ -237,29 +242,47 @@
         ]
     };
 
-    // --- Firebase Initialization (Kept for Canvas Environment Requirements) ---
+    // --- Firebase Initialization (Modified for Compatibility) ---
     async function initFirebase() {
+        // Fallback for environment variables when not running in the Canvas
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfigString = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
+        let firebaseConfig;
         try {
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+            firebaseConfig = JSON.parse(firebaseConfigString);
+        } catch (e) {
+            console.error("Failed to parse Firebase config. Using empty config.", e);
+            firebaseConfig = {};
+        }
 
-            if (Object.keys(firebaseConfig).length === 0) {
-                console.warn("Firebase configuration is missing. Running in non-persistent mode.");
-                userId = crypto.randomUUID(); // Mock ID if no config
-                isAuthReady = true;
-                return;
-            }
+        // If firebase is not available globally (e.g., if CDN load failed), skip initialization
+        if (typeof firebase === 'undefined' || !firebase.initializeApp) {
+            console.warn("Firebase scripts not loaded. Running in local, non-persistent mode.");
+            userId = crypto.randomUUID(); // Mock ID if no config
+            isAuthReady = true;
+            return;
+        }
 
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
 
-            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        if (Object.keys(firebaseConfig).length === 0) {
+            console.warn("Firebase configuration is missing. Running in non-persistent mode.");
+            userId = crypto.randomUUID(); 
+            isAuthReady = true;
+            return;
+        }
+
+        try {
+            // Use global Firebase functions (compat version)
+            app = firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore(app);
+            auth = firebase.auth(app);
 
             if (initialAuthToken) {
-                await signInWithCustomToken(auth, initialAuthToken);
+                await auth.signInWithCustomToken(initialAuthToken);
             } else {
-                await signInAnonymously(auth);
+                await auth.signInAnonymously();
             }
             
             userId = auth.currentUser?.uid || crypto.randomUUID();
